@@ -29,6 +29,7 @@ let sessions = loadSessions();
 let currentSessionId = Date.now();
 let activeSession = createSession();
 let deleteMode = false;
+let isComposingMessage = false;
 const selectedDeleteIds = new Set();
 
 if (new URLSearchParams(window.location.search).has("dev")) {
@@ -481,6 +482,11 @@ function resetMessageInput() {
   messageInput.value = "";
   messageInput.style.height = "";
   messageInput.setSelectionRange(0, 0);
+  setTimeout(() => {
+    messageInput.value = "";
+    messageInput.style.height = "";
+    messageInput.setSelectionRange(0, 0);
+  }, 0);
   requestAnimationFrame(() => {
     messageInput.focus();
   });
@@ -492,6 +498,10 @@ function autoResizeInput() {
 }
 
 function submitMessage() {
+  if (isComposingMessage) {
+    return;
+  }
+
   const text = messageInput.value.trim();
   if (!text) {
     resetMessageInput();
@@ -575,8 +585,19 @@ newChatBtn.addEventListener("click", startNewSession);
 imageFileInput.addEventListener("change", () => handleFileSelection(imageFileInput, "이미지 업로드", "image"));
 audioFileInput.addEventListener("change", () => handleFileSelection(audioFileInput, "음성 파일 업로드", "audio"));
 messageInput.addEventListener("input", autoResizeInput);
+messageInput.addEventListener("compositionstart", () => {
+  isComposingMessage = true;
+});
+messageInput.addEventListener("compositionend", () => {
+  isComposingMessage = false;
+  autoResizeInput();
+});
 messageInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && !event.shiftKey) {
+    if (event.isComposing || isComposingMessage || event.keyCode === 229) {
+      return;
+    }
+
     event.preventDefault();
     submitMessage();
   }
