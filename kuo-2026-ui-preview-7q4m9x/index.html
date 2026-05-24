@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>쿠오 Chat Interface</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app" aria-label="쿠오 채팅 인터페이스">
+    <header class="topbar">
+      <div class="brand">
+        <img class="avatar" src="ui_reference/ku-o2.png" alt="쿠오">
+        <div class="brand-title">
+          <span>쿠오</span>
+        </div>
+      </div>
+      <button class="icon-button" id="more-btn" type="button" aria-label="이전 대화 열기" aria-controls="side-drawer" aria-expanded="false">
+        <span class="dots" aria-hidden="true">⋮</span>
+      </button>
+    </header>
+
+    <main class="chat" id="chat" aria-label="채팅 메시지"></main>
+
+    <footer class="composer">
+      <form class="composer-inner" id="composer">
+        <button class="icon-button add" id="upload-open-btn" type="button" aria-label="파일 업로드 열기" aria-controls="upload-panel" aria-expanded="false">+</button>
+        <textarea class="input" id="message-input" aria-label="메시지" placeholder="Type a message..." autocomplete="off" rows="1"></textarea>
+        <button class="send" type="submit" aria-label="전송">↑</button>
+      </form>
+    </footer>
+  </div>
+
+  <div class="upload-backdrop" id="upload-backdrop"></div>
+  <section class="upload-panel" id="upload-panel" aria-label="파일 업로드" aria-hidden="true">
+    <div class="upload-head">
+      <h2 class="upload-title">파일 업로드</h2>
+      <button class="icon-button upload-close" id="upload-close-btn" type="button" aria-label="업로드 창 닫기">×</button>
+    </div>
+    <div class="upload-actions">
+      <button class="upload-action" id="image-upload-btn" type="button">
+        <span>이미지 업로드</span>
+        <span aria-hidden="true">›</span>
+      </button>
+      <button class="upload-action" id="audio-upload-btn" type="button">
+        <span>음성 파일 업로드</span>
+        <span aria-hidden="true">›</span>
+      </button>
+    </div>
+    <input class="file-input" id="image-file-input" type="file" accept="image/*" multiple>
+    <input class="file-input" id="audio-file-input" type="file" accept="audio/*" multiple>
+  </section>
+
+  <div class="backdrop" id="drawer-backdrop"></div>
+  <aside class="drawer" id="side-drawer" aria-label="이전 대화">
+    <div class="drawer-head">
+      <h2 class="drawer-title">이전 대화</h2>
+      <button class="icon-button close" id="close-drawer-btn" type="button" aria-label="닫기">×</button>
+    </div>
+    <div class="drawer-body">
+      <button class="new-chat" id="new-chat-btn" type="button">
+        <span>새 채팅창</span>
+      </button>
+
+      <label class="history-search-wrap" for="history-search">
+        <span class="visually-hidden">이전 대화 검색</span>
+        <input class="history-search" id="history-search" type="search" placeholder="대화 검색">
+      </label>
+
+      <div class="history-list" id="history-list" aria-label="대화 목록"></div>
+    </div>
+    <button class="delete-toggle" id="delete-mode-btn" type="button" aria-label="대화 삭제 모드">🗑</button>
+    <div class="delete-actions" id="delete-actions" aria-label="삭제 작업">
+      <button class="delete-action" id="cancel-delete-btn" type="button">취소</button>
+      <button class="delete-action primary" id="confirm-delete-btn" type="button" disabled>선택 삭제</button>
+    </div>
+  </aside>
+
+  <button class="dev-seed" id="dev-seed-btn" type="button" aria-label="테스트 데이터 추가">Seed</button>
+  <script src="app.js" defer></script>
+</body>
+</html>
