@@ -100,6 +100,29 @@ function truncateTitle(text) {
   return normalized.length > TITLE_LIMIT ? `${normalized.slice(0, TITLE_LIMIT)}...` : normalized;
 }
 
+function getSessionTitle(messages, fallback = "") {
+  const firstUserMessage = messages.find((message) => message.role === "user" && (message.text || message.attachments?.length));
+  if (firstUserMessage?.text) {
+    return truncateTitle(firstUserMessage.text);
+  }
+
+  const firstAttachment = firstUserMessage?.attachments?.[0];
+  if (firstAttachment?.name) {
+    return truncateTitle(firstAttachment.name);
+  }
+
+  return truncateTitle(fallback || "새 대화");
+}
+
+function cloneMessage(message) {
+  return {
+    ...message,
+    attachments: Array.isArray(message.attachments)
+      ? message.attachments.map((attachment) => ({ ...attachment }))
+      : []
+  };
+}
+
 function formatHistoryTime(isoDate) {
   const date = new Date(isoDate);
   if (Number.isNaN(date.getTime())) {
@@ -115,14 +138,19 @@ function formatHistoryTime(isoDate) {
 }
 
 function syncActiveSession() {
-  if (!activeSession.messages.length) {
-    return;
+  const messages = activeSession.messages.map(cloneMessage);
+  const hasUserContent = messages.some((message) => message.role === "user" && (message.text || message.attachments.length));
+
+  if (!hasUserContent) {
+    return false;
   }
 
   activeSession.updatedAt = new Date().toISOString();
+  activeSession.title = getSessionTitle(messages, activeSession.title);
   const snapshot = {
     ...activeSession,
-    messages: activeSession.messages.map((message) => ({ ...message }))
+    title: activeSession.title,
+    messages
   };
   const existingIndex = sessions.findIndex((session) => session.id === activeSession.id);
 
@@ -133,6 +161,7 @@ function syncActiveSession() {
   }
 
   saveSessions();
+  return true;
 }
 
 function getFilteredSessions() {
@@ -324,11 +353,11 @@ function closeUploadPanel() {
 
 function startNewSession() {
   syncActiveSession();
-  renderHistoryList();
   currentSessionId = Date.now();
   activeSession = createSession();
   chat.replaceChildren();
   chat.dataset.sessionId = String(currentSessionId);
+  renderHistoryList();
   closeDrawer();
   resetMessageInput();
 }
@@ -416,7 +445,7 @@ function loadSession(sessionId) {
 
   activeSession = {
     ...selected,
-    messages: selected.messages.map((message) => ({ ...message }))
+    messages: selected.messages.map(cloneMessage)
   };
   currentSessionId = Number(activeSession.id) || Date.now();
   renderSessionMessages();
